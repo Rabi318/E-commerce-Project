@@ -37,7 +37,7 @@ export default function Navigation() {
   const openUserMenu=Boolean(anchorE1);
   const jwt=localStorage.getItem("jwt");
 
-  const handleUserClick=(event)=>{
+  const handleUserClick= (event) =>{
     setAnchorE1(event.currentTarget);
   };
   const handleCloseUserMenu =(event) =>{
@@ -203,7 +203,7 @@ export default function Navigation() {
           Get free delivery on orders over $100
         </p>
 
-        <nav aria-label="Top" className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <nav aria-label="Top" className="mx-auto ">
           <div className="border-b border-gray-200">
             <div className="flex h-16 items-center">
               <button
@@ -221,7 +221,7 @@ export default function Navigation() {
                 <a href="#">
                   <span className="sr-only">Your Company</span>
                   <img
-                    className="h-8 w-auto"
+                    className="h-8 w-8 mr-2"
                     src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
                     alt=""
                   />
@@ -229,7 +229,7 @@ export default function Navigation() {
               </div>
 
               {/* Flyout menus */}
-              <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch">
+              <Popover.Group className="hidden lg:ml-8 lg:block lg:self-stretch z-10">
                 <div className="flex h-full space-x-8">
                   {navigation.categories.map((category) => (
                     <Popover key={category.name} className="flex">
@@ -267,7 +267,7 @@ export default function Navigation() {
                                     <div className="col-start-2 grid grid-cols-2 gap-x-8">
                                       {category.featured.map((item) => (
                                         <div key={item.name} className="group relative text-base sm:text-sm">
-                                          <div className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
+                                          <div  className="aspect-h-1 aspect-w-1 overflow-hidden rounded-lg bg-gray-100 group-hover:opacity-75">
                                             <img
                                               src={item.imageSrc}
                                               alt={item.imageAlt}
@@ -304,6 +304,7 @@ export default function Navigation() {
                                                     category,
                                                     section,
                                                     item,
+                                                    close
                                                     
                                                   )
                                                 }
