@@ -1,13 +1,17 @@
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Disclosure, Menu, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { mens_kurta } from '../../../Data/mens_kurta'
 import ProductCard from './ProductCard'
 import { filters, singleFilter } from './FilterData'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import FilterListIcon from '@mui/icons-material/FilterList';
+import { useDispatch, useSelector } from 'react-redux'
+import { findProducts } from '../../../State/Product/Action'
+import Pagination from '@mui/material/Pagination';
+import { store } from '../../../State/store'
 
 
 const sortOptions = [
@@ -27,6 +31,27 @@ export default function Product() {
 
   const location=useLocation()
   const navigate=useNavigate()
+  const param = useParams()
+  const dispatch = useDispatch();
+  const {products} = useSelector(store=>store)
+
+
+  const decodedQueryString = decodeURIComponent(location.search);
+  const serarchParams = new URLSearchParams(decodedQueryString);
+  const colorValue = serarchParams.get("color")
+  const sizeValue = serarchParams.get("size")
+  const priceValue = serarchParams.get("price")
+  const discount = serarchParams.get("discount")
+  const sortValue = serarchParams.get("sort")
+  const pageNumber = serarchParams.get("page") || 1;
+  const stock = serarchParams.get("stock")
+
+  const handlePaginationChange = (event,value) =>{
+    const searchParams = new URLSearchParams(location.search)
+    searchParams.set("page", value)
+    const query = searchParams.toString();
+    navigate({search:`?${query}`})
+  }
 
   const handleFilter = (value,sectionId) =>{
 
@@ -52,6 +77,24 @@ export default function Product() {
     const query=searchParams.toString();
       navigate({search:`?${query}`})
   }
+
+  useEffect(()=>{
+    const [minPrice, maxPrice] = priceValue===null ? [0,10000] : priceValue.split("-").map(Number);
+    
+    const data = {
+      category:param.lavelThree,
+      colors:colorValue || [],
+      sizes: sizeValue || [],
+      minPrice,
+      maxPrice,
+      minDiscount: discount || 0,
+      sort: sortValue || "price_low",
+      pageNumber: pageNumber -1,
+      pageSize: 1,
+      stock: stock
+    }
+    dispatch(findProducts(data))
+  },[param.lavelThree, colorValue, sizeValue, priceValue, discount, sortValue, pageNumber, stock])
 
   return (
     <div className="bg-white">
@@ -126,6 +169,9 @@ export default function Product() {
                                       type="checkbox"
                                       defaultChecked={option.checked}
                                       className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                      onChange={() =>
+                                        handleFilter(option.value, section.id)
+                                      }
                                     />
                                     <label
                                       htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
@@ -255,6 +301,9 @@ export default function Product() {
                                  type="checkbox"
                                  defaultChecked={option.checked}
                                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                 onChange={() =>
+                                  handleFilter(option.value, section.id)
+                                }
                                />
                                <label
                                  htmlFor={`filter-${section.id}-${optionIdx}`}
@@ -321,11 +370,16 @@ export default function Product() {
               {/* Product grid */}
               <div className="lg:col-span-4 w-full">
                 <div className='flex flex-wrap justify-content bg-white py-5'>
-                  {mens_kurta.map((item)=> <ProductCard product={item}/>)}
+                  {products.products && products.products?.content?.map((item)=> <ProductCard product={item}/>)}
 
                 </div>
 
               </div>
+            </div>
+          </section>
+          <section className='w-full px=[3.6rem]'>
+            <div className="px-4 flex justify-center">
+            <Pagination count={products.products?.totalPages} color="secondary" onChange={handlePaginationChange}/>
             </div>
           </section>
         </main>
